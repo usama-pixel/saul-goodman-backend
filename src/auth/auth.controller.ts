@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
@@ -7,12 +7,23 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @Post('/signup')
+  async create(@Body() createAuthDto: CreateAuthDto) {
+    if(!createAuthDto.email.trim() || !createAuthDto.password.trim()) throw new BadRequestException('Email and Password must be filled');
+    await this.authService.create(createAuthDto);
+    return 'User created';
   }
 
-  @Get()
+  @Post('/login')
+  async login(@Body() createAuthDto: CreateAuthDto) {
+    if(!createAuthDto.email.trim() || !createAuthDto.password.trim()) throw new BadRequestException('Email and Password must be filled');
+    const user = await this.authService.login(createAuthDto);
+    return {
+      user: user,
+      msg: 'Login successfull'
+    };
+  }
+  @Get('/users')
   findAll() {
     return this.authService.findAll();
   }
