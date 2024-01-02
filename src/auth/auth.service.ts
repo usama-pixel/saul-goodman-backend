@@ -59,8 +59,9 @@ export class AuthService {
     return users;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+  async findOne(id: number) {
+    const user = await this.repo.findOne({where: {id}});
+    return user;
   }
 
   update(id: number, updateAuthDto: UpdateAuthDto) {

@@ -1,5 +1,9 @@
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Socket } from "socket.io";
+import { Message } from "../message/entities/message.entity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { MessageService } from "../message/message.service";
 
 @WebSocketGateway({
     cors: {
@@ -9,6 +13,8 @@ import { Socket } from "socket.io";
     }
 })
 export class ChatGateway {
+    // constructor(@InjectRepository(Message) private readonly repo: Repository<Message>) {}
+    constructor(private readonly msgService: MessageService) {}
     @WebSocketServer()
     server: Socket;
     users: { [key: string]: Socket } = {};
@@ -17,23 +23,19 @@ export class ChatGateway {
     handleRegister(client: Socket, data): void {
         const id = data?.id
         this.users[id] = client;
-        // console.log({data})
     }
     @SubscribeMessage('send_msg')
     handleSendMsg(@MessageBody() data): void {
-        const {to, message} = data
+        const {to, from, message} = data
+        this.msgService.create({content: message, sender: from, receiver: to})
         const socket = this.users[to]
         if(socket) {
-            socket.emit('recieve_msg', message)
+            socket.emit('recieve_msg', {message, from})
         }
     }
     
     @SubscribeMessage('msg')
     handleMessage(@MessageBody() message): void {
         console.log({users: this.users})
-        // this.server.emit('message', message)
     }
-    // @SubscribeMessage('recieve_msg')
-    // handleRecieveMsg(@MessageBody() data): void {
-    // }
 }
