@@ -22,7 +22,7 @@ export class MessageService {
       receiver
     })
     const message = this.msgRepo.save(msgEntity)
-    return;
+    return message;
   }
 
   findAll() {
@@ -30,14 +30,11 @@ export class MessageService {
   }
 
   async findOne(id: number) {
-    const messages = await this.msgRepo
-    .createQueryBuilder('msg')
-    .leftJoinAndSelect('msg.sender', 'sender')
-    .leftJoinAndSelect('msg.receiver', 'receiver')
-    .select(['msg', 'sender.id', 'receiver.id'])
-    .where('sender.id = :id OR receiver.id = :id', { id: id })
-    .getMany();
-    
+    const messages = await this.msgRepo.find({where: [
+      {receiver: { id: id }},
+      {sender: { id: id }},
+    ],
+    relations: ['sender', 'receiver']})
     return messages;
   }
 

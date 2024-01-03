@@ -6,12 +6,12 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({nullable: true})
     email: string;
 
-    @Column()
+    @Column({nullable: true})
     password: string;
-
+    
     @OneToMany(() => Message, messge => messge.sender)
     sent_messages: Message[]
 

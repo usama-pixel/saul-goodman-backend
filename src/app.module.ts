@@ -7,7 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './auth/entities/user.entity';
 import { ChatGateway } from './socket/chat.gateway';
 import { MessageModule } from './message/message.module';
-import { DatabaseModule } from './database/database.module';
+import { DatabaseModule } from '../db/database.module';
 
 @Module({
   imports: [
